@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% block title %}Products — Roz Boutique Admin{% endblock %}
+{% block admin_content %}
+
+<div class="admin-header">
+  <h2 style="margin:0;">Products</h2>
+  <a href="{{ url_for('admin_product_new') }}" class="btn btn-primary btn-sm">+ New Product</a>
+</div>
+
+<div class="admin-card">
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Status</th><th>Sizes</th><th></th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td>{{ p.name }}</td>
+        <td>{{ p.category_name }}</td>
+        <td>${{ '%.0f'|format(p.price) }}</td>
+        <td>{% if p.active %}<span class="status-pill status-approved">Active</span>{% else %}<span class="status-pill status-rejected">Hidden</span>{% endif %}</td>
+        <td>
+          <a href="{{ url_for('admin_size_guide', product_id=p.id) }}" class="btn-text" style="font-size:0.68rem;">Size Guide</a>
+        </td>
+        <td style="white-space:nowrap;">
+          <a href="{{ url_for('admin_product_edit', product_id=p.id) }}" class="btn btn-outline btn-sm">Edit</a>
+          <form action="{{ url_for('admin_product_delete', product_id=p.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Delete this product?');">
+            <button type="submit" class="btn btn-sm" style="background:transparent; color:#A6314B; border:1px solid #A6314B; border-radius:999px; padding:10px 20px;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

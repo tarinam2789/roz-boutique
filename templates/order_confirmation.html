@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Order Confirmed — Roz Boutique{% endblock %}
+{% block content %}
+
+<section class="section">
+  <div class="container" style="max-width:640px; text-align:center;">
+    {{ m.vine_divider() }}
+    <span class="eyebrow">Thank You</span>
+    <h1>Your order is blooming</h1>
+    <p style="color:var(--ink-light); margin-bottom:30px;">Order #{{ order.id }} has been placed and will be prepared by our atelier. A confirmation has been noted on your account.</p>
+
+    <div class="admin-card" style="text-align:left;">
+      {% for item in order_items %}
+      <div class="summary-row"><span>{{ item.product_name }} ({{ item.size_code }}) &times; {{ item.quantity }}</span><span>${{ '%.2f'|format(item.price * item.quantity) }}</span></div>
+      {% endfor %}
+      <div class="summary-row"><span>Shipping</span><span>{{ 'Free' if order.shipping_cost == 0 else '$%.2f'|format(order.shipping_cost) }}</span></div>
+      <div class="summary-row total"><span>Total</span><span>${{ '%.2f'|format(order.total) }}</span></div>
+    </div>
+
+    <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top:30px;">Continue Shopping</a>
+  </div>
+</section>
+
+{% endblock %}

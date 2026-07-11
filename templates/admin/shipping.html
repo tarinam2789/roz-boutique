@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block title %}Shipping Rules — Roz Boutique Admin{% endblock %}
+{% block admin_content %}
+
+<div class="admin-header"><h2 style="margin:0;">Shipping Rules</h2></div>
+
+<div class="admin-card">
+  <h3 style="margin-bottom:16px;">Add / Update Country Rule</h3>
+  <form method="post" class="form-row" style="align-items:end;">
+    <div class="form-group"><label>Country</label><input type="text" name="country" placeholder="e.g. United States" required></div>
+    <div class="form-group"><label>Standard Shipping Price ($)</label><input type="number" step="0.01" name="standard_price" required></div>
+    <div class="form-group"><label>Free Shipping Threshold ($)</label><input type="number" step="0.01" name="free_shipping_threshold" value="100" required></div>
+    <div class="form-group"><button type="submit" class="btn btn-primary btn-block">Save Rule</button></div>
+  </form>
+</div>
+
+<div class="admin-card">
+  <h3 style="margin-bottom:16px;">Current Rules</h3>
+  <table class="data-table">
+    <thead><tr><th>Country</th><th>Standard Price</th><th>Free Shipping Over</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rules %}
+      <tr>
+        <td>{{ r.country }}</td>
+        <td>${{ '%.2f'|format(r.standard_price) }}</td>
+        <td>${{ '%.2f'|format(r.free_shipping_threshold) }}</td>
+        <td>
+          <form action="{{ url_for('admin_shipping_delete', rule_id=r.id) }}" method="post" onsubmit="return confirm('Remove this rule?');">
+            <button type="submit" class="btn-text" style="border-color:#A6314B; color:#A6314B;">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}{{ category.name }} — Roz Boutique{% endblock %}
+{% block content %}
+
+<div class="container breadcrumb">
+  <a href="{{ url_for('index') }}">Home</a> / {{ category.name }}
+</div>
+
+<section class="section--tight">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">{{ category.tagline }}</span>
+      <h1>{{ category.name }}</h1>
+    </div>
+    {{ m.vine_divider() }}
+
+    <div class="section-head--split" style="align-items:center; margin-bottom:30px;">
+      <div style="color:var(--ink-light); font-size:0.9rem;">{{ products|length }} piece{{ 's' if products|length != 1 }}</div>
+      <form method="get" style="display:flex; align-items:center; gap:10px;">
+        <label style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-light);">Sort</label>
+        <select name="sort" onchange="this.form.submit()" style="padding:10px 14px; border-radius:999px; border:1px solid var(--line); background:var(--white); font-family:var(--font-body);">
+          <option value="newest" {% if sort=='newest' %}selected{% endif %}>Newest</option>
+          <option value="price_low" {% if sort=='price_low' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_high" {% if sort=='price_high' %}selected{% endif %}>Price: High to Low</option>
+        </select>
+      </form>
+    </div>
+
+    {% if products %}
+    <div class="product-grid">
+      {% for p in products %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <h3>New pieces are being embroidered</h3>
+      <p>This collection is refreshing soon — check back shortly, or explore our other collections.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

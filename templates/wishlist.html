@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Your Wishlist — Roz Boutique{% endblock %}
+{% block content %}
+
+<section class="section--tight">
+  <div class="container">
+    <div class="section-head" style="margin-bottom:30px;">
+      <span class="eyebrow">Saved for Later</span>
+      <h1>Your Wishlist</h1>
+    </div>
+
+    {% if products %}
+    <div class="product-grid">
+      {% for p in products %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <h3>Your wishlist is empty</h3>
+      <p>Tap the heart on any piece you love to save it here for later.</p>
+      <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top:20px;">Continue Shopping</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

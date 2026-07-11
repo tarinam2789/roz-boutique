@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% block title %}Orders — Roz Boutique Admin{% endblock %}
+{% block admin_content %}
+
+<div class="admin-header"><h2 style="margin:0;">Orders</h2></div>
+
+<div class="admin-card">
+  {% if orders %}
+  <table class="data-table">
+    <thead><tr><th>Order</th><th>Customer</th><th>Country</th><th>Subtotal</th><th>Shipping</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+    <tbody>
+      {% for o in orders %}
+      <tr>
+        <td>#{{ o.id }}</td>
+        <td>{{ o.full_name }}</td>
+        <td>{{ o.country }}</td>
+        <td>${{ '%.2f'|format(o.subtotal) }}</td>
+        <td>{{ 'Free' if o.shipping_cost == 0 else '$%.2f'|format(o.shipping_cost) }}</td>
+        <td>${{ '%.2f'|format(o.total) }}</td>
+        <td><span class="tag">{{ o.status }}</span></td>
+        <td>{{ o.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--ink-light);">No orders yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

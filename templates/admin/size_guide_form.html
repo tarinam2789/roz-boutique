@@ -1,0 +1,74 @@
+{% extends "admin/base.html" %}
+{% block title %}Size Guide — {{ product.name }}{% endblock %}
+{% block admin_content %}
+
+<div class="admin-header">
+  <h2 style="margin:0;">Size Guide — {{ product.name }}</h2>
+  <a href="{{ url_for('admin_products') }}" class="btn-text">&larr; Back to Products</a>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="admin-card">
+
+  <div class="form-group">
+    <label>Measurement Unit</label>
+    <select name="unit">
+      <option value="in" {% if guide and guide.unit=='in' %}selected{% endif %}>Inches</option>
+      <option value="cm" {% if guide and guide.unit=='cm' %}selected{% endif %}>Centimeters</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Written Measurement Instructions</label>
+    <textarea name="instructions" rows="4" placeholder="How to measure chest, waist, hips, length...">{{ guide.instructions if guide else '' }}</textarea>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Size Guide Image URL (optional)</label>
+      <input type="text" name="image_url" value="{{ guide.image_path if guide and guide.image_path and guide.image_path.startswith('http') else '' }}" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label>Or Upload an Image</label>
+      <input type="file" name="image_file" accept="image/*">
+    </div>
+  </div>
+  {% if guide and guide.image_path %}
+  <p style="font-size:0.8rem; color:var(--ink-light); margin-bottom:20px;">Current image: {{ guide.image_path }}</p>
+  {% endif %}
+
+  <h3 style="margin-top:20px;">Measurement Chart</h3>
+  <p style="color:var(--ink-light); font-size:0.84rem; margin-bottom:16px;">Check each size to include it in the chart, then fill in its measurements.</p>
+
+  <div style="overflow-x:auto;">
+  <table class="size-table" style="min-width:760px;">
+    <thead>
+      <tr>
+        <th></th><th>Size</th><th>Chest</th><th>Waist</th><th>Hips</th><th>Length</th><th>Sleeve</th>
+        <th>{{ product.bottom_type or 'Bottom' }} Length</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for size_code in sizes %}
+      {% set row = rows_map.get(size_code) %}
+      <tr>
+        <td><input type="checkbox" name="row_{{ size_code }}" {% if row %}checked{% endif %}></td>
+        <td><strong>{{ size_code }}</strong></td>
+        <td><input type="number" step="0.1" name="chest_{{ size_code }}" value="{{ row.chest if row else '' }}" style="width:70px;"></td>
+        <td><input type="number" step="0.1" name="waist_{{ size_code }}" value="{{ row.waist if row else '' }}" style="width:70px;"></td>
+        <td><input type="number" step="0.1" name="hips_{{ size_code }}" value="{{ row.hips if row else '' }}" style="width:70px;"></td>
+        <td><input type="number" step="0.1" name="length_{{ size_code }}" value="{{ row.length if row else '' }}" style="width:70px;"></td>
+        <td><input type="number" step="0.1" name="sleeve_{{ size_code }}" value="{{ row.sleeve_length if row else '' }}" style="width:70px;"></td>
+        <td><input type="number" step="0.1" name="bottom_{{ size_code }}" value="{{ row.bottom_length if row else '' }}" style="width:70px;"></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% if not product.bottom_type %}
+  <p style="color:var(--ink-light); font-size:0.78rem; margin-top:10px;">Tip: set a Bottom Type (Trouser / Shalwar / Pants) on the product's edit page to label this column properly.</p>
+  {% endif %}
+
+  <button type="submit" class="btn btn-primary" style="margin-top:30px;">Save Size Guide</button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Roz Boutique — Luxury South Asian Fashion{% endblock %}</title>
+<meta name="description" content="Roz Boutique — premium Bangladeshi & Pakistani fashion for the US, Canada & UK. Luxury pret, formals and bridal, hand-finished with rose-garden detail.">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<div class="topbar">Complimentary shipping on US, Canada &amp; UK orders over $100</div>
+
+<header class="site-header">
+  <div class="nav-row">
+    <div class="nav-left">
+      <button type="button" class="hamburger-btn" aria-label="Open menu" onclick="rozOpenDrawer()">
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><line x1="0" y1="1" x2="20" y2="1" stroke="currentColor" stroke-width="1.6"/><line x1="0" y1="7" x2="20" y2="7" stroke="currentColor" stroke-width="1.6"/><line x1="0" y1="13" x2="20" y2="13" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
+      <a href="{{ url_for('index') }}" class="logo">Ro<span>z</span> Boutique</a>
+    </div>
+    <nav class="main-nav">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('policies') }}#returns">Returns</a>
+      <a href="{{ url_for('policies') }}#shipping">Shipping Policy</a>
+      <a href="{{ url_for('contact') }}">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <form action="{{ url_for('search') }}" method="get" class="nav-search" id="nav-search-form">
+        <button type="button" class="nav-icon-link nav-search-toggle" aria-label="Search" onclick="document.getElementById('nav-search-form').classList.toggle('open'); document.getElementById('nav-search-input').focus();">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="vertical-align:-2px; margin-right:4px;"><circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.3"/><line x1="10.8" y1="10.8" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Search
+        </button>
+        <input type="text" name="q" id="nav-search-input" class="nav-search-input" placeholder="Search Roz Boutique..." value="{{ request.args.get('q','') }}" autocomplete="off">
+      </form>
+      <a href="{{ url_for('wishlist_page') }}" class="nav-icon-link">Wishlist
+        {% if wishlist_count %}<span class="cart-badge">{{ wishlist_count }}</span>{% endif %}
+      </a>
+      <a href="{{ url_for('cart_page') }}" class="nav-icon-link">Bag
+        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+      </a>
+      {% if current_user %}
+      <a href="{{ url_for('account_dashboard') }}" class="nav-icon-link">Account</a>
+      {% else %}
+      <a href="{{ url_for('account_login') }}" class="nav-icon-link">Sign In</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<div class="nav-drawer-overlay" id="nav-drawer-overlay" onclick="rozCloseDrawer()"></div>
+<aside class="nav-drawer" id="nav-drawer">
+  <button type="button" class="nav-drawer-close" aria-label="Close menu" onclick="rozCloseDrawer()">&times;</button>
+  <div class="nav-drawer-logo">Ro<span>z</span> Boutique</div>
+  <nav class="nav-drawer-links">
+    <a href="{{ url_for('category_page', slug='new-arrivals') }}">New Arrivals</a>
+    <a href="{{ url_for('category_page', slug='luxury-pret') }}">Luxury Pret</a>
+    <a href="{{ url_for('category_page', slug='formals') }}">Formals</a>
+    <a href="{{ url_for('category_page', slug='semi-formals') }}">Semi Formals</a>
+    <a href="{{ url_for('category_page', slug='luxury-formals') }}">Luxury Formals</a>
+    <a href="{{ url_for('category_page', slug='tops') }}">Tops</a>
+    <a href="{{ url_for('category_page', slug='skirts') }}">Skirts</a>
+    <a href="{{ url_for('category_page', slug='pants') }}">Pants</a>
+    <a href="{{ url_for('category_page', slug='kids') }}">Kids</a>
+    <a href="{{ url_for('category_page', slug='jewelry') }}">Jewelry</a>
+  </nav>
+</aside>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-wrap">
+    {% for category, message in messages %}
+      <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">Roz Boutique</div>
+        <p>Hand-finished Bangladeshi &amp; Pakistani fashion for the modern wardrobe — rose gardens, woven in.</p>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="{{ url_for('category_page', slug='new-arrivals') }}">New Arrivals</a></li>
+          <li><a href="{{ url_for('category_page', slug='luxury-pret') }}">Luxury Pret</a></li>
+          <li><a href="{{ url_for('category_page', slug='formals') }}">Formals</a></li>
+          <li><a href="{{ url_for('category_page', slug='luxury-formals') }}">Luxury Formals</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Care</h4>
+        <ul>
+          <li><a href="{{ url_for('policies') }}">Shipping Policy</a></li>
+          <li><a href="{{ url_for('policies') }}">Returns &amp; Exchanges</a></li>
+          <li><a href="{{ url_for('account_dashboard') }}">Track an Order</a></li>
+          <li><a href="{{ url_for('account_login') }}">My Account</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Roz Boutique</h4>
+        <ul>
+          <li><a href="#">Our Story</a></li>
+          <li><a href="#">Craftsmanship</a></li>
+          <li><a href="{{ url_for('contact') }}">Contact</a></li>
+          <li><a href="{{ url_for('admin_login') }}">Admin</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; {{ current_year }} Roz Boutique. All rights reserved. Shipping to the United States, Canada &amp; United Kingdom.</div>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

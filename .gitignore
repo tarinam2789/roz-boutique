@@ -1,0 +1,25 @@
+# Environment variables (secrets) — never commit this
+.env
+
+# Database — contains real customer/order data, shouldn't be public
+roz.db
+roz.db.bak
+*.db
+
+# Uploaded product photos/videos — user-generated content, not source code
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+venv/
+env/
+*.egg-info/
+
+# OS/editor cruft
+.DS_Store
+.vscode/
+.idea/

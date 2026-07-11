@@ -1,0 +1,24 @@
+{% import "macros.html" as m %}
+<div class="product-card">
+  <a href="{{ url_for('product_detail', slug=p.slug) }}" class="card-link">
+    <div class="product-art">
+      {% if p.image_path %}
+      <img src="{% if p.image_path.startswith('http') %}{{ p.image_path }}{% else %}{{ url_for('static', filename=p.image_path) }}{% endif %}" alt="{{ p.name }}" style="width:100%; height:100%; object-fit:cover;">
+      {% else %}
+      {{ m.product_art(p.swatch, p.name) }}
+      {% endif %}
+      {% if p.is_new_arrival %}<span class="product-badge">New</span>
+      {% elif p.compare_at_price %}<span class="product-badge">Sale</span>
+      {% elif p.is_best_seller %}<span class="product-badge">Best Seller</span>{% endif %}
+    </div>
+    <div class="cat">{{ p.fabric }}</div>
+    <div class="name">{{ p.name }}</div>
+    <div class="price">${{ '%.0f'|format(p.price) }}{% if p.compare_at_price %}<span class="compare">${{ '%.0f'|format(p.compare_at_price) }}</span>{% endif %}</div>
+  </a>
+  <form action="{{ url_for('wishlist_toggle') }}" method="post" class="wishlist-form">
+    <input type="hidden" name="product_id" value="{{ p.id }}">
+    <button type="submit" class="wishlist-toggle {{ 'active' if p.id in wishlist_ids else '' }}" aria-label="Toggle wishlist" title="{{ 'Remove from wishlist' if p.id in wishlist_ids else 'Add to wishlist' }}">
+      {{ m.heart_icon(p.id in wishlist_ids) }}
+    </button>
+  </form>
+</div>

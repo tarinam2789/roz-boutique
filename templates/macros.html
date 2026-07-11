@@ -1,0 +1,100 @@
+{% macro vine_divider() -%}
+<div class="vine-divider" aria-hidden="true">
+  <span class="line"></span>
+  <svg width="26" height="18" viewBox="0 0 26 18" fill="none">
+    <path d="M2 9c4-6 8-6 11 0s7 6 11 0" stroke="currentColor" stroke-width="1" fill="none"/>
+    <circle cx="13" cy="6" r="2.4" stroke="currentColor" stroke-width="1" fill="none"/>
+  </svg>
+  <span class="line"></span>
+</div>
+{%- endmacro %}
+
+{% macro butterfly(cls, x, y, scale=1, color='#C7A15A') -%}
+<svg class="butterfly {{ cls }}" style="left:{{ x }}; top:{{ y }}; transform: scale({{ scale }});" width="34" height="30" viewBox="0 0 34 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g class="wing">
+    <path d="M17 15C13 4 3 2 2 8c-1 7 7 11 15 7z" fill="{{ color }}" opacity="0.75"/>
+  </g>
+  <path d="M17 15c4-11 14-13 15-7 1 7-7 11-15 7z" fill="{{ color }}" opacity="0.55"/>
+  <line x1="17" y1="9" x2="17" y2="23" stroke="{{ color }}" stroke-width="1.2"/>
+</svg>
+{%- endmacro %}
+
+{% macro grasshopper(cls, x, y, scale=1, color='#7E8F5C') -%}
+<svg class="grasshopper {{ cls }}" style="left:{{ x }}; top:{{ y }}; transform: scale({{ scale }});" width="46" height="30" viewBox="0 0 46 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="20" cy="15" rx="12" ry="5.5" stroke="{{ color }}" stroke-width="1.3"/>
+  <path d="M31 13c5-1 9 0 12-3" stroke="{{ color }}" stroke-width="1.3" stroke-linecap="round"/>
+  <path d="M9 12c-2-3-4-5-7-5" stroke="{{ color }}" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M9 12c-1-3-1-6 1-8" stroke="{{ color }}" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M15 19c-2 4-4 7-8 8" stroke="{{ color }}" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M22 20c0 4 0 7-2 9" stroke="{{ color }}" stroke-width="1.3" stroke-linecap="round"/>
+  <circle cx="12" cy="12" r="1.6" fill="{{ color }}"/>
+</svg>
+{%- endmacro %}
+
+{# Botanical line-art "product art" panels used in place of photography.
+   6 duotone gradient backgrounds paired with 3 recurring line-art motifs. #}
+
+{% set gradients = [
+  ['#F2C9CE', '#C97B86'],
+  ['#FBF6EE', '#F2C9CE'],
+  ['#C97B86', '#A6566A'],
+  ['#E6D3A8', '#F7E3E0'],
+  ['#F2C9CE', '#FBF6EE'],
+  ['#A6566A', '#7E3A4C']
+] %}
+
+{% macro product_art(swatch, name, badge=None) -%}
+{% set g = gradients[swatch % 6] %}
+{% set motif = swatch % 3 %}
+{% set line_color = '#FBF6EE' if swatch % 6 in [2,5] else '#A6566A' %}
+<svg viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ name }}">
+  <defs>
+    <linearGradient id="grad{{ swatch }}-{{ motif }}-{{ loop.index0 if loop else 0 }}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="{{ g[0] }}"/>
+      <stop offset="100%" stop-color="{{ g[1] }}"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="520" fill="url(#grad{{ swatch }}-{{ motif }}-{{ loop.index0 if loop else 0 }})"/>
+  <g opacity="0.55" stroke="{{ line_color }}" stroke-width="1.3" fill="none">
+    {% if motif == 0 %}
+    <path d="M200 460 C190 360 220 300 200 230"/>
+    <circle cx="200" cy="185" r="34"/>
+    <path d="M200 155a30 30 0 0 1 0 60 30 30 0 0 1 0-60z"/>
+    <path d="M170 260c-30 6-46 30-40 52"/>
+    <path d="M230 300c30 6 46 30 40 52"/>
+    {% elif motif == 1 %}
+    <path d="M120 480 C160 340 140 220 220 60"/>
+    <path d="M150 380c-24-8-40-30-34-54"/>
+    <path d="M175 300c26-4 46-24 44-48"/>
+    <path d="M195 210c-22-10-34-34-24-58"/>
+    <circle cx="222" cy="55" r="20"/>
+    {% else %}
+    <path d="M90 470c40-120 60-180 40-300"/>
+    <path d="M310 470c-40-120-60-180-40-300"/>
+    <circle cx="130" cy="150" r="16"/>
+    <circle cx="270" cy="150" r="16"/>
+    <path d="M200 480V120"/>
+    <circle cx="200" cy="90" r="26"/>
+    {% endif %}
+  </g>
+  {% if badge %}
+  <text x="24" y="40" font-family="Jost, sans-serif" font-size="11" letter-spacing="2" fill="{{ line_color }}" opacity="0.8">{{ badge|upper }}</text>
+  {% endif %}
+</svg>
+{%- endmacro %}
+
+{% macro heart_icon(filled=False) -%}
+<svg width="16" height="15" viewBox="0 0 16 15" xmlns="http://www.w3.org/2000/svg">
+  <path d="M8 14.2S1 9.8 1 5.1C1 2.6 3 1 5.2 1 6.6 1 7.6 1.7 8 2.6 8.4 1.7 9.4 1 10.8 1 13 1 15 2.6 15 5.1c0 4.7-7 9.1-7 9.1z"
+    fill="{{ 'var(--rose-deep)' if filled else 'none' }}"
+    stroke="var(--rose-deep)" stroke-width="1.2" stroke-linejoin="round"/>
+</svg>
+{%- endmacro %}
+
+{% macro stars(rating) -%}
+<span class="stars" aria-label="{{ rating }} out of 5 stars">
+  {%- for i in range(1,6) -%}
+    {%- if i <= rating -%}&#9733;{%- else -%}&#9734;{%- endif -%}
+  {%- endfor -%}
+</span>
+{%- endmacro %}

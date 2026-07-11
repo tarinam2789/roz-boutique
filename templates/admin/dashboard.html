@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard — Roz Boutique Admin{% endblock %}
+{% block admin_content %}
+
+<div class="admin-header">
+  <h2 style="margin:0;">Dashboard</h2>
+  <a href="{{ url_for('admin_product_new') }}" class="btn btn-primary btn-sm">+ New Product</a>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card"><div class="num">{{ stats.products }}</div><div class="label">Products</div></div>
+  <div class="stat-card"><div class="num">{{ stats.orders }}</div><div class="label">Orders</div></div>
+  <div class="stat-card"><div class="num">{{ stats.pending_returns }}</div><div class="label">Pending Returns</div></div>
+  <div class="stat-card"><div class="num">${{ '%.0f'|format(stats.revenue) }}</div><div class="label">Revenue</div></div>
+</div>
+
+<div class="admin-card">
+  <h3 style="margin-bottom:16px;">Recent Orders</h3>
+  {% if recent_orders %}
+  <table class="data-table">
+    <thead><tr><th>Order</th><th>Customer</th><th>Country</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+    <tbody>
+      {% for o in recent_orders %}
+      <tr>
+        <td>#{{ o.id }}</td>
+        <td>{{ o.full_name }}</td>
+        <td>{{ o.country }}</td>
+        <td>${{ '%.2f'|format(o.total) }}</td>
+        <td><span class="tag">{{ o.status }}</span></td>
+        <td>{{ o.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--ink-light);">No orders yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

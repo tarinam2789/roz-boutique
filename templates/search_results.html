@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Search{% if query %} — "{{ query }}"{% endif %} — Roz Boutique{% endblock %}
+{% block content %}
+
+<div class="container breadcrumb">
+  <a href="{{ url_for('index') }}">Home</a> / Search
+</div>
+
+<section class="section--tight">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Search Results</span>
+      <h1>{% if query %}"{{ query }}"{% else %}Search Roz Boutique{% endif %}</h1>
+    </div>
+    {{ m.vine_divider() }}
+
+    {% if not query %}
+    <div class="empty-state">
+      <h3>What are you looking for?</h3>
+      <p>Use the search bar above to find pieces by name, fabric, or description.</p>
+    </div>
+    {% elif products %}
+    <p style="color:var(--ink-light); font-size:0.9rem; margin-bottom:24px;">{{ products|length }} result{{ 's' if products|length != 1 }} for "{{ query }}"</p>
+    <div class="product-grid">
+      {% for p in products %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <h3>No pieces found for "{{ query }}"</h3>
+      <p>Try a different search term, or explore our collections instead.</p>
+      <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top:20px;">Back to Home</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Shipping & Returns — Roz Boutique{% endblock %}
+{% block content %}
+
+<section class="section--tight">
+  <div class="container" style="max-width:800px;">
+    <div class="section-head">
+      <span class="eyebrow">Good to Know</span>
+      <h1>Shipping, Returns &amp; Exchanges</h1>
+    </div>
+    {{ m.vine_divider() }}
+
+    <h3 id="shipping">Shipping Policy</h3>
+    <p style="color:var(--ink-light);">We ship to the United States, Canada and United Kingdom. Orders over $100 ship free; below that, rates are calculated by destination at checkout.</p>
+    <table class="data-table" style="margin:20px 0 40px;">
+      <thead><tr><th>Country</th><th>Standard Shipping</th><th>Free Shipping Threshold</th></tr></thead>
+      <tbody>
+        {% for r in shipping_rules %}
+        <tr><td>{{ r.country }}</td><td>${{ '%.2f'|format(r.standard_price) }}</td><td>${{ '%.0f'|format(r.free_shipping_threshold) }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if return_policy %}
+    <h3 id="returns">Return Policy</h3>
+    <p style="color:var(--ink-light);">Returns are accepted within <strong style="color:var(--ink);">{{ return_policy.window_days }} days</strong> of delivery. A return fee of <strong style="color:var(--ink);">${{ '%.2f'|format(return_policy.return_fee) }}</strong> applies and customers are responsible for return shipping costs. Start a return anytime from your account dashboard — every request is reviewed by our team before approval.</p>
+    <p style="color:var(--ink-light); margin-top:14px;"><strong style="color:var(--ink);">Eligibility:</strong> {{ return_policy.eligibility_rules }}</p>
+
+    <h3 style="margin-top:34px;">Exchange Policy</h3>
+    <p style="color:var(--ink-light);">Need a different size? Request an exchange the same way you'd request a return, within the {{ return_policy.window_days }}-day window, and note your preferred size — our team will confirm availability.</p>
+
+    <h3 style="margin-top:34px;">Refunds</h3>
+    <p style="color:var(--ink-light);">{{ return_policy.refund_method }}</p>
+    {% endif %}
+
+    <div style="margin-top:40px;">
+      <a href="{{ url_for('account_dashboard') }}" class="btn btn-primary">Request a Return</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

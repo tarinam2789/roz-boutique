@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+{% block title %}Return Requests — Roz Boutique Admin{% endblock %}
+{% block admin_content %}
+
+<div class="admin-header"><h2 style="margin:0;">Return Requests</h2></div>
+
+<div class="admin-card">
+  {% if requests_rows %}
+  <table class="data-table">
+    <thead><tr><th>Order</th><th>Product</th><th>Customer</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>
+      {% for r in requests_rows %}
+      <tr>
+        <td>#{{ r.order_id }}</td>
+        <td>{{ r.product_name }} ({{ r.size_code }})</td>
+        <td>{{ r.customer_name }}<br><span style="color:var(--ink-light); font-size:0.78rem;">{{ r.customer_email }}</span></td>
+        <td style="max-width:220px;">{{ r.reason }}</td>
+        <td><span class="status-pill status-{{ r.status|lower }}">{{ r.status }}</span></td>
+        <td>
+          <form action="{{ url_for('admin_return_request_update', req_id=r.id) }}" method="post" style="display:flex; gap:6px; align-items:center;">
+            <select name="status" style="padding:8px; border-radius:6px; border:1px solid var(--line);">
+              <option value="Pending" {% if r.status=='Pending' %}selected{% endif %}>Pending</option>
+              <option value="Approved" {% if r.status=='Approved' %}selected{% endif %}>Approved</option>
+              <option value="Rejected" {% if r.status=='Rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+            <input type="text" name="admin_note" placeholder="Note (optional)" value="{{ r.admin_note or '' }}" style="padding:8px; border-radius:6px; border:1px solid var(--line); width:130px;">
+            <button type="submit" class="btn btn-primary btn-sm">Update</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--ink-light);">No return requests yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Checkout — Roz Boutique{% endblock %}
+{% block content %}
+
+<section class="section--tight">
+  <div class="container">
+    <div class="section-head" style="margin-bottom:30px;">
+      <span class="eyebrow">Almost There</span>
+      <h1>Checkout</h1>
+    </div>
+
+    <div class="product-layout" style="grid-template-columns: 1.4fr 1fr; align-items:start;">
+      <form method="post" class="admin-card" style="box-shadow:var(--shadow-soft);">
+        <h3>Shipping Details</h3>
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" name="full_name" required>
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" name="address" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" name="city" required>
+          </div>
+          <div class="form-group">
+            <label>Postal Code</label>
+            <input type="text" name="postal_code">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Country</label>
+          <select name="country" onchange="this.form.submit()">
+            {% for c in countries %}
+            <option value="{{ c.country }}" {% if c.country == selected_country %}selected{% endif %}>{{ c.country }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div style="border-top:1px solid var(--line); margin:20px 0; padding-top:18px;">
+          <h4 style="margin-bottom:10px;">Shipping &amp; Return Policy</h4>
+          <p style="font-size:0.84rem; color:var(--ink-light);">Free shipping on orders over ${{ '%.0f'|format(free_threshold) }} to {{ selected_country }}. {% if return_policy %}Returns accepted within {{ return_policy.window_days }} days; customer covers return shipping (${{ '%.0f'|format(return_policy.return_fee) }} fee).{% endif %} <a href="{{ url_for('policies') }}" style="color:var(--rose-deep);">Read full policy</a>.</p>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Place Order — ${{ '%.2f'|format(subtotal + shipping_cost) }}</button>
+        <p style="font-size:0.72rem; color:var(--ink-light); text-align:center; margin-top:12px;">This is a demo checkout — no payment is collected.</p>
+      </form>
+
+      <div class="cart-summary">
+        <h3 style="margin-bottom:16px;">Order Summary</h3>
+        {% for item in items %}
+        <div class="summary-row"><span>{{ item.product.name }} ({{ item.size_code }}) &times; {{ item.qty }}</span><span>${{ '%.2f'|format(item.line_total) }}</span></div>
+        {% endfor %}
+        <div class="summary-row"><span>Subtotal</span><span>${{ '%.2f'|format(subtotal) }}</span></div>
+        <div class="summary-row"><span>Shipping ({{ selected_country }})</span><span>{{ 'Free' if shipping_cost == 0 else '$%.2f'|format(shipping_cost) }}</span></div>
+        <div class="summary-row total"><span>Total</span><span>${{ '%.2f'|format(subtotal + shipping_cost) }}</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

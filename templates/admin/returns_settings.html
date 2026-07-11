@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+{% block title %}Return Policy — Roz Boutique Admin{% endblock %}
+{% block admin_content %}
+
+<div class="admin-header"><h2 style="margin:0;">Return Policy Settings</h2></div>
+
+<form method="post" class="admin-card" style="max-width:640px;">
+  <div class="form-row">
+    <div class="form-group">
+      <label>Return Window (days)</label>
+      <input type="number" name="window_days" value="{{ policy.window_days if policy else 7 }}" required>
+    </div>
+    <div class="form-group">
+      <label>Return Fee ($)</label>
+      <input type="number" step="0.01" name="return_fee" value="{{ policy.return_fee if policy else 0 }}" required>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Eligibility Rules</label>
+    <textarea name="eligibility_rules" rows="4">{{ policy.eligibility_rules if policy else '' }}</textarea>
+  </div>
+  <div class="form-group">
+    <label>Refund Method</label>
+    <textarea name="refund_method" rows="2">{{ policy.refund_method if policy else '' }}</textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Save Policy</button>
+</form>
+
+{% endblock %}

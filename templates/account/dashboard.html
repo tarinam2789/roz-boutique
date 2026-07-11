@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}My Account — Roz Boutique{% endblock %}
+{% block content %}
+
+<section class="section--tight">
+  <div class="container">
+    <div class="section-head--split">
+      <div>
+        <span class="eyebrow">My Account</span>
+        <h1>Welcome, {{ current_user.name }}</h1>
+      </div>
+      <a href="{{ url_for('account_logout') }}" class="btn-text">Sign Out</a>
+    </div>
+
+    {% if return_policy %}
+    <p style="color:var(--ink-light); font-size:0.86rem; margin-bottom:34px;">Returns are accepted within {{ return_policy.window_days }} days of ordering. A ${{ '%.2f'|format(return_policy.return_fee) }} return fee applies and shipping costs are the customer's responsibility. <a href="{{ url_for('policies') }}" style="color:var(--rose-deep);">Full policy</a>.</p>
+    {% endif %}
+
+    {% if orders_with_items %}
+      {% for entry in orders_with_items %}
+      <div class="admin-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div>
+            <strong>Order #{{ entry.order.id }}</strong>
+            <span style="color:var(--ink-light); font-size:0.84rem;"> &middot; placed {{ entry.order.created_at }}</span>
+          </div>
+          <span class="tag">{{ entry.order.status }}</span>
+        </div>
+        {% for item in entry.order_items %}
+        <div class="cart-line" style="grid-template-columns: 90px 1fr auto;">
+          <div class="thumb">{{ m.product_art(0, item.product_name) }}</div>
+          <div>
+            <div>{{ item.product_name }}</div>
+            <div style="font-size:0.8rem; color:var(--ink-light);">Size {{ item.size_code }} &middot; Qty {{ item.quantity }} &middot; ${{ '%.2f'|format(item.price) }}</div>
+          </div>
+          <div>
+            {% set rr = entry.returns.get(item.id) %}
+            {% if rr %}
+              <span class="status-pill status-{{ rr.status|lower }}">{{ rr.status }}</span>
+            {% else %}
+              <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('return-modal-{{ item.id }}').classList.add('open')">Request Return</button>
+              <div class="modal-overlay" id="return-modal-{{ item.id }}">
+                <div class="modal-box" style="max-width:440px;">
+                  <button class="modal-close" onclick="document.getElementById('return-modal-{{ item.id }}').classList.remove('open')">&times;</button>
+                  <h3>Request Return</h3>
+                  <p style="color:var(--ink-light); font-size:0.86rem; margin-bottom:16px;">{{ item.product_name }} — Size {{ item.size_code }}</p>
+                  <form action="{{ url_for('account_return_request') }}" method="post">
+                    <input type="hidden" name="order_item_id" value="{{ item.id }}">
+                    <div class="form-group">
+                      <label>Reason for return</label>
+                      <textarea name="reason" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Submit for Review</button>
+                  </form>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <h3>No orders yet</h3>
+      <p>When you place an order, it will appear here.</p>
+      <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top:20px;">Start Shopping</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

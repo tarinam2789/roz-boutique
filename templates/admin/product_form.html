@@ -1,0 +1,146 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit' if product else 'New' }} Product — Roz Boutique Admin{% endblock %}
+{% block admin_content %}
+
+<div class="admin-header">
+  <h2 style="margin:0;">{{ 'Edit Product' if product else 'New Product' }}</h2>
+  {% if product %}
+  <a href="{{ url_for('admin_size_guide', product_id=product.id) }}" class="btn btn-outline btn-sm">Manage Size Guide</a>
+  {% endif %}
+</div>
+
+<form method="post" enctype="multipart/form-data" class="admin-card">
+  <div class="form-row">
+    <div class="form-group"><label>Product Name</label><input type="text" name="name" value="{{ product.name if product else '' }}" required></div>
+    <div class="form-group"><label>URL Slug</label><input type="text" name="slug" value="{{ product.slug if product else '' }}" required></div>
+  </div>
+
+  <h3 style="margin-top:10px;">Product Gallery</h3>
+  {% if media %}
+  <p style="color:var(--ink-light); font-size:0.84rem; margin-bottom:12px;">Current photos &amp; video — check "Remove" on anything you want to delete.</p>
+  <div style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+    {% for m in media %}
+    <div style="width:130px;">
+      {% if m.media_type == 'video' %}
+        {% if m.path.startswith('http') and ('youtube.com' in m.path or 'youtu.be' in m.path or 'vimeo.com' in m.path) %}
+        <div style="width:130px; height:160px; border-radius:8px; background:var(--blush); display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:var(--rose-deep); text-align:center; padding:8px;">Video (embed link)</div>
+        {% else %}
+        <video src="{% if m.path.startswith('http') %}{{ m.path }}{% else %}{{ url_for('static', filename=m.path) }}{% endif %}" style="width:130px; height:160px; object-fit:cover; border-radius:8px;" muted></video>
+        {% endif %}
+      {% else %}
+      <img src="{% if m.path.startswith('http') %}{{ m.path }}{% else %}{{ url_for('static', filename=m.path) }}{% endif %}" alt="" style="width:130px; height:160px; object-fit:cover; border-radius:8px; box-shadow:var(--shadow-soft);">
+      {% endif %}
+      <label class="checkbox-row" style="margin-top:6px; font-size:0.76rem;">
+        <input type="checkbox" name="delete_media" value="{{ m.id }}"> Remove
+      </label>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="form-group">
+    <label>Add Photos (select multiple)</label>
+    <input type="file" name="image_files" accept="image/*" multiple>
+  </div>
+  <div class="form-group">
+    <label>Or Add Photo URLs (one per line)</label>
+    <textarea name="image_urls" rows="2" placeholder="https://example.com/photo1.jpg&#10;https://example.com/photo2.jpg"></textarea>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Upload a Video</label>
+      <input type="file" name="video_file" accept="video/*">
+    </div>
+    <div class="form-group">
+      <label>Or a Video URL (YouTube/Vimeo embed link, or direct .mp4 link)</label>
+      <input type="text" name="video_url" placeholder="https://www.youtube.com/embed/... or https://.../video.mp4">
+    </div>
+  </div>
+  <p style="color:var(--ink-light); font-size:0.78rem; margin-bottom:20px;">You can add photos every time you save — new ones are added to the gallery, they don't replace old ones. The first photo in the gallery becomes the cover photo shown on listing pages.</p>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Category</label>
+      <select name="category_id" required>
+        {% for c in categories %}
+        <option value="{{ c.id }}" {% if product and product.category_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group"><label>Fabric</label><input type="text" name="fabric" value="{{ product.fabric if product else '' }}"></div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group"><label>Price (USD)</label><input type="number" step="0.01" name="price" value="{{ product.price if product else '' }}" required></div>
+    <div class="form-group"><label>Compare-at Price (optional)</label><input type="number" step="0.01" name="compare_at_price" value="{{ product.compare_at_price if product and product.compare_at_price else '' }}"></div>
+  </div>
+
+  <div class="form-group">
+    <label>Description</label>
+    <textarea name="description" rows="4">{{ product.description if product else '' }}</textarea>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Art Swatch (fallback style, used only if no photo is set)</label>
+      <select name="swatch">
+        {% for i in range(6) %}
+        <option value="{{ i }}" {% if product and product.swatch == i %}selected{% endif %}>Swatch {{ i }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group"><label>Season Tag (optional)</label><input type="text" name="season" value="{{ product.season if product else '' }}" placeholder="e.g. Spring, Eid, Wedding"></div>
+  </div>
+
+  <div class="form-group">
+    <label>Bottom Type (for size guide labeling)</label>
+    <select name="bottom_type">
+      <option value="">— Not applicable —</option>
+      {% for bt in bottom_types %}
+      <option value="{{ bt }}" {% if product and product.bottom_type == bt %}selected{% endif %}>{{ bt }}</option>
+      {% endfor %}
+    </select>
+    <p style="color:var(--ink-light); font-size:0.78rem; margin-top:6px;">Choose whether this suit's bottom is a Trouser, Shalwar, or Pants — this labels the length column on the size guide.</p>
+  </div>
+
+  <h3 style="margin-top:20px;">Available Colors</h3>
+  <p style="color:var(--ink-light); font-size:0.84rem; margin-bottom:16px;">Type any color names, separated by commas — not limited to a fixed list (e.g. "Black, Bottle Green, Dusty Rose, Champagne"). Common names get a matching swatch automatically; any other name still gets a soft auto-generated swatch color.</p>
+  <input type="text" name="colors_text" list="color-suggestions" value="{{ colors_text }}" placeholder="e.g. Black, Rose Gold, Bottle Green, Champagne">
+  <datalist id="color-suggestions">
+    <option value="Black"><option value="White"><option value="Ivory"><option value="Cream">
+    <option value="Rose"><option value="Rose Gold"><option value="Blush"><option value="Pink">
+    <option value="Hot Pink"><option value="Gold"><option value="Maroon"><option value="Red">
+    <option value="Wine"><option value="Navy"><option value="Blue"><option value="Royal Blue">
+    <option value="Sky Blue"><option value="Bottle Green"><option value="Green"><option value="Emerald">
+    <option value="Olive"><option value="Grey"><option value="Silver"><option value="Mustard">
+    <option value="Yellow"><option value="Peach"><option value="Orange"><option value="Turquoise">
+    <option value="Teal"><option value="Purple"><option value="Lavender"><option value="Lilac">
+    <option value="Brown"><option value="Beige"><option value="Coral"><option value="Mint">
+    <option value="Magenta"><option value="Charcoal"><option value="Off White">
+  </datalist>
+
+  <p style="color:var(--ink-light); font-size:0.78rem; margin-top:20px; margin-bottom:6px;">These are extra tags — they don't change the product's Category above. Checking "New Arrival" also shows it on the New Arrivals page and homepage section, in addition to its normal category page.</p>
+  <div style="display:flex; gap:24px; margin:0 0 20px;">
+    <label class="checkbox-row"><input type="checkbox" name="is_new_arrival" {% if product and product.is_new_arrival %}checked{% endif %}> New Arrival</label>
+    <label class="checkbox-row"><input type="checkbox" name="is_best_seller" {% if product and product.is_best_seller %}checked{% endif %}> Best Seller</label>
+    <label class="checkbox-row"><input type="checkbox" name="is_featured" {% if product and product.is_featured %}checked{% endif %}> Featured</label>
+    <label class="checkbox-row"><input type="checkbox" name="active" {% if not product or product.active %}checked{% endif %}> Visible on site</label>
+  </div>
+
+  <h3 style="margin-top:10px;">Available Sizes &amp; Inventory</h3>
+  <p style="color:var(--ink-light); font-size:0.84rem; margin-bottom:16px;">Check each size you want available for this product and set its inventory quantity.</p>
+  <div class="size-admin-grid">
+    {% for size_code in ['XS','S','M','L','XL','XXL'] %}
+    <div class="size-admin-cell">
+      <label class="checkbox-row" style="justify-content:center;">
+        <input type="checkbox" name="size_{{ size_code }}" {% if size_code in sizes_map %}checked{% endif %}> {{ size_code }}
+      </label>
+      <input type="number" name="qty_{{ size_code }}" min="0" value="{{ sizes_map.get(size_code, 0) }}" placeholder="Qty">
+    </div>
+    {% endfor %}
+  </div>
+
+  <button type="submit" class="btn btn-primary" style="margin-top:30px;">Save Product</button>
+</form>
+
+{% endblock %}

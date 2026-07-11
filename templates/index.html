@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+
+{% block content %}
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Bangladeshi &amp; Pakistani Couture</span>
+      <h1>Fashion, grown&nbsp;like&nbsp;a&nbsp;garden.</h1>
+      <p class="lede">Roz Boutique is hand-embroidered, rose-toned, and made for the woman who wants her wardrobe to feel like an heirloom. Shipping to the US, Canada &amp; UK.</p>
+      <div class="hero-actions">
+        <a href="{{ url_for('category_page', slug='new-arrivals') }}" class="btn btn-primary">Shop New Arrivals</a>
+        <a href="{{ url_for('category_page', slug='luxury-formals') }}" class="btn btn-outline">Explore Bridal</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      {{ m.product_art(5, "Roz Boutique hero look", "Signature") }}
+      {{ m.butterfly('b1', '18%', '14%', 1.4) }}
+      {{ m.butterfly('b2', '72%', '58%', 1) }}
+      {{ m.butterfly('b3', '55%', '10%', 0.8) }}
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Shop by Collection</span>
+      <h2>Find your occasion</h2>
+    </div>
+    {{ m.vine_divider() }}
+    <div class="category-strip">
+      {% for cat in categories %}
+      <a class="category-tile" href="{{ url_for('category_page', slug=cat.slug) }}">
+        {{ m.product_art(loop.index0, cat.name) }}
+        <div class="cap">
+          <div class="tag">{{ cat.tagline }}</div>
+          <div class="name">{{ cat.name }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% if new_arrivals %}
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-head--split">
+      <a href="{{ url_for('category_page', slug='new-arrivals') }}" class="section-title-link">
+        <span class="eyebrow">Just In</span>
+        <h2>New Arrivals</h2>
+      </a>
+    </div>
+    <div class="product-grid">
+      {% for p in new_arrivals %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if best_sellers %}
+<section class="section">
+  <div class="container">
+    <div class="section-head--split">
+      <a href="{{ url_for('category_page', slug='luxury-pret') }}" class="section-title-link">
+        <span class="eyebrow">Loved Again &amp; Again</span>
+        <h2>Best Sellers</h2>
+      </a>
+    </div>
+    <div class="product-grid">
+      {% for p in best_sellers %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section section--alt">
+  <div class="container">
+    <div class="promo-banner">
+      {{ m.butterfly('b1', '8%', '14%', 1.1, '#F7E3E0') }}
+      {{ m.butterfly('b2', '86%', '20%', 0.9, '#F7E3E0') }}
+      <span class="eyebrow" style="color:var(--gold-light)">Made to be Kept</span>
+      <h2>The Roz Boutique Signature Bridal Edit</h2>
+      <p>Zardozi, dabka and hand-cut floral appliqué — each piece takes up to 200 hours to complete.</p>
+      <a href="{{ url_for('category_page', slug='luxury-formals') }}" class="btn btn-gold">Shop Luxury Formals</a>
+    </div>
+  </div>
+</section>
+
+{% for cat in categories %}
+  {% if cat.slug in category_previews and cat.slug not in ['new-arrivals'] %}
+  <section class="section {% if loop.index0 is even %}section--alt{% endif %}">
+    <div class="container">
+      <div class="section-head--split">
+        <a href="{{ url_for('category_page', slug=cat.slug) }}" class="section-title-link">
+          <span class="eyebrow">{{ cat.tagline }}</span>
+          <h2>{{ cat.name }}</h2>
+        </a>
+      </div>
+      <div class="product-grid">
+        {% for p in category_previews[cat.slug] %}
+          {% include "partials/product_card.html" %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+{% endfor %}
+
+{% if featured %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Editor's Pick</span>
+      <h2>Featured Collections</h2>
+    </div>
+    {{ m.vine_divider() }}
+    <div class="product-grid">
+      {% for p in featured %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if seasonal %}
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Right Now</span>
+      <h2>Seasonal Collection</h2>
+    </div>
+    {{ m.vine_divider() }}
+    <div class="product-grid">
+      {% for p in seasonal %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if reviews %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">From Our Customers</span>
+      <h2>Loved by women across the US, Canada &amp; UK</h2>
+    </div>
+    {{ m.vine_divider() }}
+    <div class="review-grid">
+      {% for r in reviews[:3] %}
+      <div class="review-card">
+        {{ m.stars(r.rating) }}
+        <p class="quote">&ldquo;{{ r.comment }}&rdquo;</p>
+        <div class="who">{{ r.customer_name }} &middot; {{ r.location }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if instagram_posts %}
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">@wearroz</span>
+      <h2>Styled by You</h2>
+    </div>
+    {{ m.vine_divider() }}
+    <div class="insta-grid">
+      {% for post in instagram_posts %}
+      <div class="insta-tile">
+        {{ m.product_art(post.swatch, post.caption) }}
+        <div class="cap">{{ post.caption }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="container">
+    <div class="newsletter">
+      {{ m.butterfly('b3', '10%', '20%', 0.9) }}
+      <span class="eyebrow">Join the Garden</span>
+      <h2>Get early access to new collections</h2>
+      <p style="color:var(--ink-light); max-width:440px; margin:0 auto 26px;">Sign up for 10% off your first order and seasonal styling notes from the Roz Boutique atelier.</p>
+      <form class="newsletter-form" action="{{ url_for('newsletter_subscribe') }}" method="post">
+        <input type="email" name="email" placeholder="Your email address" required>
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

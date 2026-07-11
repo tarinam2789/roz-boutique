@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Your Bag — Roz Boutique{% endblock %}
+{% block content %}
+
+<section class="section--tight">
+  <div class="container">
+    <div class="section-head" style="margin-bottom:30px;">
+      <span class="eyebrow">Your Selection</span>
+      <h1>Your Bag</h1>
+    </div>
+
+    {% if items %}
+    <div class="product-layout" style="grid-template-columns: 1.6fr 1fr;">
+      <div>
+        {% for item in items %}
+        <div class="cart-line">
+          <div class="thumb">
+            {% if item.product.image_path %}
+            <img src="{% if item.product.image_path.startswith('http') %}{{ item.product.image_path }}{% else %}{{ url_for('static', filename=item.product.image_path) }}{% endif %}" alt="{{ item.product.name }}" style="width:100%; height:100%; object-fit:cover;">
+            {% else %}
+            {{ m.product_art(item.product.swatch, item.product.name) }}
+            {% endif %}
+          </div>
+          <div>
+            <div style="font-size:0.98rem;">{{ item.product.name }}</div>
+            <div style="font-size:0.8rem; color:var(--ink-light);">Size {{ item.size_code }}</div>
+            <form action="{{ url_for('cart_update') }}" method="post" style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+              <input type="hidden" name="index" value="{{ loop.index0 }}">
+              <label style="font-size:0.76rem; color:var(--ink-light);">Qty</label>
+              <input type="number" name="qty" value="{{ item.qty }}" min="0" max="20" style="width:60px; padding:6px; border-radius:6px; border:1px solid var(--line);">
+              <button type="submit" class="btn-text" style="font-size:0.68rem;">Update</button>
+            </form>
+          </div>
+          <div style="font-family:var(--font-display); color:var(--rose-deep); font-size:1.1rem;">${{ '%.2f'|format(item.line_total) }}</div>
+          <form action="{{ url_for('cart_remove') }}" method="post">
+            <input type="hidden" name="index" value="{{ loop.index0 }}">
+            <button type="submit" class="btn-text" style="border-color:var(--ink-light); color:var(--ink-light);">Remove</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div>
+        <div class="cart-summary">
+          <div class="summary-row"><span>Subtotal</span><span>${{ '%.2f'|format(subtotal) }}</span></div>
+          <div class="summary-row"><span>Shipping</span><span>{{ 'Free' if subtotal >= 100 else 'Calculated at checkout' }}</span></div>
+          <div class="summary-row total"><span>Estimated Total</span><span>${{ '%.2f'|format(subtotal) }}+</span></div>
+          <a href="{{ url_for('checkout') }}" class="btn btn-primary btn-block">Proceed to Checkout</a>
+          {% if subtotal < 100 %}
+          <p style="font-size:0.78rem; color:var(--ink-light); margin-top:14px;">Add ${{ '%.2f'|format(100 - subtotal) }} more for free shipping.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <h3>Your bag is waiting to bloom</h3>
+      <p>You haven't added anything yet.</p>
+      <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top:20px;">Continue Shopping</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

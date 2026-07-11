@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}{{ product.name }} — Roz Boutique{% endblock %}
+{% block content %}
+
+<div class="container breadcrumb">
+  <a href="{{ url_for('index') }}">Home</a> /
+  <a href="{{ url_for('category_page', slug=(all_categories|selectattr('id','equalto',product.category_id)|first).slug) }}">
+    {{ (all_categories|selectattr('id','equalto',product.category_id)|first).name }}
+  </a> / {{ product.name }}
+</div>
+
+<section class="section--tight">
+  <div class="container product-layout">
+    <div class="product-gallery">
+      <div class="product-gallery-main">
+        {% if media %}
+          {% for item in media %}
+          <div class="gallery-item {% if loop.first %}active{% endif %}" data-gallery-index="{{ loop.index0 }}">
+            {% if item.media_type == 'video' %}
+              {% if item.path.startswith('http') and ('youtube.com' in item.path or 'youtu.be' in item.path or 'vimeo.com' in item.path) %}
+              <iframe src="{{ item.path }}" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+              {% else %}
+              <video src="{% if item.path.startswith('http') %}{{ item.path }}{% else %}{{ url_for('static', filename=item.path) }}{% endif %}" style="width:100%; height:100%; object-fit:cover;" controls></video>
+              {% endif %}
+            {% else %}
+              <img src="{% if item.path.startswith('http') %}{{ item.path }}{% else %}{{ url_for('static', filename=item.path) }}{% endif %}" alt="{{ product.name }}" style="width:100%; height:100%; object-fit:cover;">
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+        {{ m.product_art(product.swatch, product.name, 'Roz Boutique') }}
+        {% endif %}
+      </div>
+      {% if media and media|length > 1 %}
+      <div class="gallery-thumbs">
+        {% for item in media %}
+        <button type="button" class="gallery-thumb {% if loop.first %}active{% endif %}" data-gallery-index="{{ loop.index0 }}" onclick="rozShowGalleryItem({{ loop.index0 }})">
+          {% if item.media_type == 'video' %}
+            <span class="gallery-thumb-play">&#9658;</span>
+            {% if not (item.path.startswith('http') and ('youtube.com' in item.path or 'youtu.be' in item.path or 'vimeo.com' in item.path)) %}
+            <video src="{% if item.path.startswith('http') %}{{ item.path }}{% else %}{{ url_for('static', filename=item.path) }}{% endif %}" muted></video>
+            {% endif %}
+          {% else %}
+          <img src="{% if item.path.startswith('http') %}{{ item.path }}{% else %}{{ url_for('static', filename=item.path) }}{% endif %}" alt="">
+          {% endif %}
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="product-info">
+      <div class="cat-label">{{ product.fabric }}{% if product.is_new_arrival %} &middot; New Arrival{% endif %}</div>
+      <h1>{{ product.name }}</h1>
+      {% if avg_rating %}
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        {{ m.stars(avg_rating|round(0,'floor')|int) }}
+        <span style="font-size:0.82rem; color:var(--ink-light);">{{ avg_rating }} ({{ reviews|length }} review{{ 's' if reviews|length != 1 }})</span>
+      </div>
+      {% endif %}
+      <div class="price-row">
+        <span class="price">${{ '%.0f'|format(product.price) }}</span>
+        {% if product.compare_at_price %}<span class="compare">${{ '%.0f'|format(product.compare_at_price) }}</span>{% endif %}
+      </div>
+
+      <form action="{{ url_for('wishlist_toggle') }}" method="post" style="margin-bottom:20px;">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <button type="submit" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:8px;">
+          {{ m.heart_icon(product.id in wishlist_ids) }}
+          {{ 'Saved to Wishlist' if product.id in wishlist_ids else 'Add to Wishlist' }}
+        </button>
+      </form>
+
+      <p class="product-desc">{{ product.description }}</p>
+
+      {% if colors %}
+      <div style="margin-bottom:20px;">
+        <span class="label" style="text-transform:uppercase; font-size:0.78rem; letter-spacing:0.1em; color:var(--ink); display:block; margin-bottom:10px;">Available Colors</span>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          {% for c in colors %}
+          <span title="{{ c.color_name }}" style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; border:1px solid var(--line); font-size:0.8rem;">
+            <span style="width:14px; height:14px; border-radius:50%; background:{{ c.hex }}; border:1px solid var(--line); display:inline-block;"></span>
+            {{ c.color_name }}
+          </span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if sizes %}
+      <form action="{{ url_for('cart_add') }}" method="post" id="add-to-cart-form">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <input type="hidden" name="qty" value="1">
+        <div class="size-row">
+          <span class="label">Select Size</span>
+          {% if size_guide %}
+          <button type="button" class="size-guide-btn" onclick="document.getElementById('size-guide-modal').classList.add('open')">Size Guide</button>
+          {% endif %}
+        </div>
+        <div class="size-options">
+          {% for s in sizes %}
+          {% if s.quantity > 0 %}
+          <label class="size-pill">
+            <input type="radio" name="size_code" value="{{ s.size_code }}" required>
+            {{ s.size_code }}
+          </label>
+          {% else %}
+          <span class="size-pill disabled" title="Sold out">{{ s.size_code }}</span>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% if sizes|selectattr('quantity','greaterthan',0)|list %}
+        <button type="submit" class="btn btn-primary btn-block">Add to Bag</button>
+        {% else %}
+        <button type="button" class="btn btn-outline btn-block" disabled>All Sizes Sold Out</button>
+        {% endif %}
+      </form>
+      {% else %}
+      <div class="tag" style="margin-bottom:20px;">Currently Sold Out</div>
+      <button class="btn btn-outline btn-block" disabled>Out of Stock</button>
+      {% endif %}
+
+      <div class="policy-mini">
+        <div class="row"><strong>Shipping</strong> Free shipping on orders over $100 to the US, Canada &amp; UK. <a href="{{ url_for('policies') }}" style="color:var(--rose-deep);">See rates</a>.</div>
+        {% if return_policy %}
+        <div class="row"><strong>Returns</strong> {{ return_policy.window_days }}-day return window. Customer covers return shipping (${{ '%.0f'|format(return_policy.return_fee) }} fee). <a href="{{ url_for('policies') }}" style="color:var(--rose-deep);">Full policy</a>.</div>
+        {% endif %}
+        <div class="row"><strong>Exchanges</strong> Size exchanges available through your account dashboard within the return window.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if reviews %}
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Reviews</span>
+      <h2>What she's saying</h2>
+    </div>
+    {{ m.vine_divider() }}
+    <div class="review-grid">
+      {% for r in reviews %}
+      <div class="review-card">
+        {{ m.stars(r.rating) }}
+        <p class="quote">&ldquo;{{ r.comment }}&rdquo;</p>
+        <div class="who">{{ r.customer_name }} &middot; {{ r.location }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if related %}
+<section class="section">
+  <div class="container">
+    <div class="section-head--split">
+      <div><span class="eyebrow">You May Also Love</span><h2>Complete the look</h2></div>
+    </div>
+    <div class="product-grid">
+      {% for p in related %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if size_guide %}
+<div class="modal-overlay" id="size-guide-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('size-guide-modal').classList.remove('open')">&times;</button>
+    <span class="eyebrow">Size Guide</span>
+    <h3>{{ product.name }}</h3>
+    {% if size_guide.image_path %}
+    <img src="{% if size_guide.image_path.startswith('http') %}{{ size_guide.image_path }}{% else %}{{ url_for('static', filename=size_guide.image_path) }}{% endif %}" alt="Size guide diagram" style="border-radius:8px; margin-top:16px;">
+    {% endif %}
+    {% if guide_rows %}
+    <table class="size-table">
+      <thead>
+        <tr>
+          <th>Size</th><th>Chest</th><th>Waist</th><th>Hips</th><th>Length</th><th>Sleeve</th>
+          <th>{{ product.bottom_type or 'Bottom' }} Length</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in guide_rows %}
+        <tr>
+          <td><strong>{{ row.size_code }}</strong></td>
+          <td>{{ row.chest or '—' }}</td>
+          <td>{{ row.waist or '—' }}</td>
+          <td>{{ row.hips or '—' }}</td>
+          <td>{{ row.length or '—' }}</td>
+          <td>{{ row.sleeve_length or '—' }}</td>
+          <td>{{ row.bottom_length or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="font-size:0.76rem; color:var(--ink-light); margin-top:10px;">All measurements in {{ size_guide.unit }}.</p>
+    {% endif %}
+    {% if size_guide.instructions %}
+    <p style="margin-top:20px; color:var(--ink-light); font-size:0.9rem;">{{ size_guide.instructions }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

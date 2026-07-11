@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+{% block title %}Messages — Roz Boutique Admin{% endblock %}
+{% block admin_content %}
+
+<div class="admin-header"><h2 style="margin:0;">Contact Messages</h2></div>
+
+<div class="admin-card">
+  {% if messages %}
+  <table class="data-table">
+    <thead><tr><th>From</th><th>Subject</th><th>Message</th><th>Received</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>
+      {% for msg in messages %}
+      <tr style="{{ 'font-weight:600;' if not msg.is_read }}">
+        <td>{{ msg.name }}<br><span style="color:var(--ink-light); font-size:0.78rem; font-weight:400;">{{ msg.email }}</span></td>
+        <td>{{ msg.subject or '—' }}</td>
+        <td style="max-width:320px; white-space:pre-wrap; font-weight:400;">{{ msg.message }}</td>
+        <td style="font-weight:400;">{{ msg.created_at }}</td>
+        <td>{% if msg.is_read %}<span class="status-pill status-approved">Read</span>{% else %}<span class="status-pill status-pending">New</span>{% endif %}</td>
+        <td style="white-space:nowrap;">
+          <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.subject or 'Your message to Roz Boutique' }}" class="btn btn-outline btn-sm">Reply by Email</a>
+          {% if not msg.is_read %}
+          <form action="{{ url_for('admin_message_mark_read', message_id=msg.id) }}" method="post" style="display:inline;">
+            <button type="submit" class="btn-text" style="font-size:0.68rem;">Mark Read</button>
+          </form>
+          {% endif %}
+          <form action="{{ url_for('admin_message_delete', message_id=msg.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Delete this message?');">
+            <button type="submit" class="btn-text" style="border-color:#A6314B; color:#A6314B; font-size:0.68rem;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--ink-light);">No messages yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
