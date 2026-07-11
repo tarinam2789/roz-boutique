@@ -15,9 +15,11 @@ conn.executescript(open(SCHEMA_PATH).read())
 cur = conn.cursor()
 
 # ---------------------------------------------------------------- admin
+admin_email = os.environ.get("ADMIN_EMAIL", "admin@roz.com")
+admin_password = os.environ.get("ADMIN_PASSWORD", "roz-admin-2026")
 cur.execute(
     "INSERT INTO admin_users (email, password_hash) VALUES (?,?)",
-    ("admin@roz.com", generate_password_hash("roz-admin-2026")),
+    (admin_email, generate_password_hash(admin_password)),
 )
 
 # ------------------------------------------------------------ categories
